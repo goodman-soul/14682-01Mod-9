@@ -14,11 +14,11 @@ const Layout: React.FC = () => {
   };
 
   // 动态生成菜单项
-  const menuItems = [
+  const menuItems: { name: string; path: string; icon: any; noTrack?: boolean }[] = [
     { name: '仪表盘', path: '/dashboard', icon: BarChart3 },
     ...(currentConfig.modules.includes('reports') ? [{ name: '报表分析', path: '/reports', icon: FileText }] : []),
     ...(currentConfig.modules.includes('social-feed') ? [{ name: '社交动态', path: '/social-feed', icon: MessageSquare }] : []),
-    ...(isFeatureEnabled('enableAnalytics') ? [{ name: '埋点调试', path: '/debug', icon: Bug }] : []),
+    ...(isFeatureEnabled('enableAnalytics') ? [{ name: '埋点调试', path: '/debug', icon: Bug, noTrack: true }] : []),
   ];
 
   // 优化浏览器标题
@@ -66,6 +66,7 @@ const Layout: React.FC = () => {
               <Link
                 key={item.path}
                 to={item.path}
+                data-no-track={item.noTrack ? 'true' : undefined}
                 className={`flex items-center gap-3 px-4 py-3 rounded-[var(--border-radius)] transition-colors ${
                   location.pathname === item.path
                     ? 'bg-[var(--primary-color)] text-white'

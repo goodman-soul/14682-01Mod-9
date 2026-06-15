@@ -1,11 +1,30 @@
 import { TrackEvent, EventFilter } from './types';
+import { currentConfig } from '@/configs';
 
-const STORAGE_KEY = 'analytics_events';
+const STORAGE_PREFIX = 'analytics_events_';
+const TENANT_MARKER_KEY = 'analytics_current_tenant';
 const MAX_EVENTS = 500;
+
+const getStorageKey = (tenantId: string): string => {
+  return `${STORAGE_PREFIX}${tenantId}`;
+};
+
+const ensureTenantIsolated = (): void => {
+  const currentTenant = currentConfig.id;
+  const lastTenant = localStorage.getItem(TENANT_MARKER_KEY);
+  if (lastTenant && lastTenant !== currentTenant) {
+    localStorage.removeItem(getStorageKey(lastTenant));
+    const testKey = `analytics_test_mode`;
+    localStorage.removeItem(testKey);
+  }
+  localStorage.setItem(TENANT_MARKER_KEY, currentTenant);
+};
+
+ensureTenantIsolated();
 
 const getStorage = (): TrackEvent[] => {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(getStorageKey(currentConfig.id));
     return raw ? JSON.parse(raw) : [];
   } catch {
     return [];
@@ -14,7 +33,7 @@ const getStorage = (): TrackEvent[] => {
 
 const setStorage = (events: TrackEvent[]): void => {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(events));
+    localStorage.setItem(getStorageKey(currentConfig.id), JSON.stringify(events));
   } catch (e) {
     console.warn('Failed to save analytics events to storage', e);
   }
@@ -49,12 +68,9 @@ export const getEvents = (filter?: EventFilter): TrackEvent[] => {
 };
 
 export const clearEvents = (): void => {
-  localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem(getStorageKey(currentConfig.id));
 };
 
 export const getTenants = (): string[] => {
-  const events = getStorage();
-  const tenantSet = new Set<string>();
-  events.forEach(e => tenantSet.add(e.tenantId));
-  return Array.from(tenantSet);
+  return [currentConfig.id];
 };

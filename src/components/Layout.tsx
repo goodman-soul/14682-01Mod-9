@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useNavigate, Link, Outlet, useLocation } from 'react-router-dom';
 import { currentConfig, isFeatureEnabled } from '@/configs';
-import { BarChart3, FileText, MessageSquare } from 'lucide-react';
+import { BarChart3, FileText, MessageSquare, Bug } from 'lucide-react';
 
 const Layout: React.FC = () => {
   const navigate = useNavigate();
@@ -18,6 +18,7 @@ const Layout: React.FC = () => {
     { name: '仪表盘', path: '/dashboard', icon: BarChart3 },
     ...(currentConfig.modules.includes('reports') ? [{ name: '报表分析', path: '/reports', icon: FileText }] : []),
     ...(currentConfig.modules.includes('social-feed') ? [{ name: '社交动态', path: '/social-feed', icon: MessageSquare }] : []),
+    ...(isFeatureEnabled('enableAnalytics') ? [{ name: '埋点调试', path: '/debug', icon: Bug }] : []),
   ];
 
   // 优化浏览器标题

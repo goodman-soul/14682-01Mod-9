@@ -4,7 +4,7 @@ export const config: ClientConfig = {
   id: 'client-b',
   name: '企业客户 B',
   features: {
-    enableAnalytics: false,
+    enableAnalytics: true,
     enableSocialSharing: true,
     enableAdvancedSearch: false,
   },
